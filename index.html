@@ -22,7 +22,7 @@
   .status{padding:12px 14px;border:1px solid var(--line);border-radius:10px;
     background:var(--panel);color:var(--dim);margin-bottom:18px;font-size:.95rem}
   .status strong{color:var(--text)}
-  .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
   @media(max-width:720px){.grid{grid-template-columns:1fr}}
   .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px}
   .card h2{margin:0 0 6px;font-size:1.05rem;color:var(--accent)}
@@ -113,7 +113,7 @@
     </div>
   </div>
 
-  <div class="card" style="margin-top:18px">
+  <div class="card">
     <h2>Local eclipse circumstances</h2>
     <div class="sub" id="circSub">Times are local to your position</div>
     <table id="circTable">
@@ -368,14 +368,15 @@ function drawPair(svgId, M) {
 
 // Sun/Moon disks at maximum eclipse
 function drawViz() {
-  drawPair('viz', state ? state.maxMag : 0);
+  const shown100 = state && (state.total || Math.round(state.maxObsc * 100) >= 100);
+  drawPair('viz', shown100 ? 1.6 : (state ? state.maxMag : 0));
 }
 
 // Sun/Moon disks at the CURRENT instant (live)
 function drawLive() {
   if (!state) return;
   const c = circumstances(current.lat, current.lon, nowTDT());
-  drawPair('vizLive', c.magnitude);
+  drawPair('vizLive', (c.total || Math.round(c.obsc * 100) >= 100) ? 1.6 : c.magnitude);
   const p = Math.max(0, Math.min(100, Math.round(c.obsc * 100)));
   $('livePct').textContent = (c.obsc <= 0.001) ? '0%' : (c.total || c.obsc >= 0.99) ? '100%' : p + '%';
   $('livePctCap').textContent = (c.obsc <= 0.001)
