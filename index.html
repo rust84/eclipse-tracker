@@ -117,13 +117,13 @@
     <h2>Local eclipse circumstances</h2>
     <div class="sub" id="circSub">Times are local to your position</div>
     <table id="circTable">
-      <tr><th>Event</th><th>Local time</th></tr>
-      <tr><td>Partial eclipse begins</td><td id="tP1">—</td></tr>
-      <tr><td>Totality begins</td><td id="tU2" class="total">—</td></tr>
-      <tr><td>Maximum eclipse</td><td id="tMax">—</td></tr>
-      <tr><td>Totality ends</td><td id="tU3" class="total">—</td></tr>
-      <tr><td>Partial eclipse ends</td><td id="tP4">—</td></tr>
-      <tr><td>Duration of totality</td><td id="tDur">—</td></tr>
+      <tr><th>Event</th><th id="thLocal">Your local time</th><th>UTC</th></tr>
+      <tr><td>Partial eclipse begins</td><td id="tP1">—</td><td id="tP1u">—</td></tr>
+      <tr><td>Totality begins</td><td id="tU2" class="total">—</td><td id="tU2u" class="total">—</td></tr>
+      <tr><td>Maximum eclipse</td><td id="tMax">—</td><td id="tMaxu">—</td></tr>
+      <tr><td>Totality ends</td><td id="tU3" class="total">—</td><td id="tU3u" class="total">—</td></tr>
+      <tr><td>Partial eclipse ends</td><td id="tP4">—</td><td id="tP4u">—</td></tr>
+      <tr><td>Duration of totality</td><td id="tDur" colspan="2">—</td></tr>
     </table>
   </div>
   <div class="foot" id="foot">
@@ -251,9 +251,26 @@ function fullCircumstances(lat, lon) {
 let state = null;                 // fullCircumstances result
 let current = { lat: null, lon: null, name: 'your location' };
 
+// Browser's own timezone — the one every local time below is rendered in.
+const BROWSER_TZ = (() => {
+  try { return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'; } catch (e) { return 'UTC'; }
+})();
+
 function fmtDate(d) {
   if (!d) return '—';
-  return d.toLocaleString([], { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit', second:'2-digit' });
+  // timeZoneName makes the offset explicit, so a UTC-configured browser can't be
+  // mistaken for local wall-clock time.
+  return d.toLocaleString([], { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit',
+                                second:'2-digit', timeZoneName:'short' });
+}
+function fmtClock(d) {
+  if (!d) return '—';
+  return d.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', timeZoneName:'short' });
+}
+function fmtUTC(d) {
+  if (!d) return '—';
+  return d.toLocaleString([], { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit',
+                                second:'2-digit', hour12:false, timeZone:'UTC' }) + ' UTC';
 }
 function fmtDur(ms) {
   if (ms == null || isNaN(ms)) return '—';
@@ -280,9 +297,10 @@ function render() {
   if (isNaN(diff)) { $('count').textContent='—'; $('countTarget').textContent=''; }
   else if (diff > 0) {
     $('count').textContent = fmtHMS(diff);
+    const at = fmtClock(new Date(t1));
     $('countTarget').textContent = state.total
-      ? 'until totality begins at your location'
-      : (state.maxObsc > 0.001 ? 'until maximum eclipse at your location' : 'until greatest eclipse');
+      ? `until totality begins at your location, ${at}`
+      : (state.maxObsc > 0.001 ? `until maximum eclipse at your location, ${at}` : `until greatest eclipse, ${at}`);
     $('countLabel').textContent = 'counting down to';
   } else if (diff <= 0 && state.total && now < state.totalEnd.getTime()) {
     $('count').textContent = 'NOW';
@@ -300,9 +318,15 @@ function render() {
   $('tMax').textContent = fmtDate(state.maxTime);
   $('tU3').textContent = state.totalEnd ? fmtDate(state.totalEnd) : '— (not in path)';
   $('tP4').textContent = fmtDate(state.partialEnd);
+  $('tP1u').textContent = fmtUTC(state.partialStart);
+  $('tU2u').textContent = state.totalStart ? fmtUTC(state.totalStart) : '—';
+  $('tMaxu').textContent = fmtUTC(state.maxTime);
+  $('tU3u').textContent = state.totalEnd ? fmtUTC(state.totalEnd) : '—';
+  $('tP4u').textContent = fmtUTC(state.partialEnd);
   $('tDur').textContent = (state.totalStart && state.totalEnd)
     ? fmtDur(state.totalEnd.getTime() - state.totalStart.getTime()) : '—';
-  $('circSub').textContent = `Times are local to ${current.name}`;
+  $('thLocal').textContent = `Time in ${BROWSER_TZ}`;
+  $('circSub').textContent = `Event times for ${current.name}, shown in this device's timezone (${BROWSER_TZ}) and UTC`;
 
   drawViz();
 }
