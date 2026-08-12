@@ -32,6 +32,12 @@
     letter-spacing:1px;color:var(--gold)}
   .countdown .lbl{margin-top:4px;color:var(--dim)}
   #viz{display:block;margin:0 auto}
+  .banner{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:18px;margin-bottom:18px}
+  .banner .count h2{margin:0;color:var(--accent);font-size:1.05rem}
+  .banner .num{font-size:clamp(2rem,6vw,3.2rem)}
+  .banner .lbl{margin-top:2px;color:var(--dim)}
+  .banner .right{display:flex;flex-direction:column;align-items:stretch;gap:8px;flex:1;max-width:400px;margin-left:auto}
+  .banner .locbar{margin-top:0;justify-content:flex-end}
   .coverage{text-align:center;margin-top:14px}
   .coverage .pct{font-size:2.6rem;font-weight:800;color:var(--sun)}
   .coverage .cap{color:var(--dim);font-size:.85rem;margin-top:2px}
@@ -56,29 +62,21 @@
 <main>
   <div class="status" id="status">📍 Determining your location…</div>
 
-  <div class="grid">
-    <div class="card">
-      <h2>Sun &amp; Moon, maximum eclipse</h2>
-      <div class="sub" id="vizSub">How the Moon will cover the Sun at your location</div>
-      <svg id="viz" width="300" height="300" viewBox="0 0 300 300" aria-label="Sun and Moon positions"></svg>
-      <div class="coverage">
-        <div class="pct" id="pct">—</div>
-        <div class="cap" id="pctCap">maximum coverage of the Sun</div>
-      </div>
-    </div>
-
-    <div class="card countdown">
+  <div class="card countdown banner">
+    <div class="count">
       <h2>Countdown</h2>
-      <div class="sub" id="countLabel">computing…</div>
       <div class="num" id="count">--:--:--</div>
       <div class="lbl" id="countTarget"></div>
-      <div class="locbar" style="justify-content:center;margin-top:20px">
+      <div class="sub" id="countLabel">computing…</div>
+    </div>
+    <div class="right">
+      <div class="locbar">
         <input id="latInput" type="number" placeholder="Latitude" step="any" style="width:110px">
         <input id="lonInput" type="number" placeholder="Longitude" step="any" style="width:110px">
         <button id="setLoc">Set</button>
         <button id="reuse">Use my location</button>
       </div>
-      <select id="preset" onchange="loadPreset()" style="margin-top:8px">
+      <select id="preset" onchange="loadPreset()">
         <option value="">— or pick a city —</option>
         <option value="65.10,-21.90">Reykjavík, Iceland</option>
         <option value="66.07,-23.11">Ísafjörður, Iceland</option>
@@ -94,13 +92,25 @@
     </div>
   </div>
 
-  <div class="card">
-    <h2>Sun &amp; Moon, right now</h2>
-    <div class="sub" id="vizLiveSub">Live view of their current positions — updating in real time</div>
-    <svg id="vizLive" width="300" height="300" viewBox="0 0 300 300" aria-label="Live Sun and Moon positions"></svg>
-    <div class="coverage">
-      <div class="pct" id="livePct">—</div>
-      <div class="cap" id="livePctCap">current coverage of the Sun</div>
+  <div class="grid">
+    <div class="card">
+      <h2>Sun &amp; Moon, maximum eclipse</h2>
+      <div class="sub" id="vizSub">How the Moon will cover the Sun at your location</div>
+      <svg id="viz" width="300" height="300" viewBox="0 0 300 300" aria-label="Sun and Moon positions"></svg>
+      <div class="coverage">
+        <div class="pct" id="pct">—</div>
+        <div class="cap" id="pctCap">maximum coverage of the Sun</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Sun &amp; Moon, right now</h2>
+      <div class="sub" id="vizLiveSub">Live view of their current positions — updating in real time</div>
+      <svg id="vizLive" width="300" height="300" viewBox="0 0 300 300" aria-label="Live Sun and Moon positions"></svg>
+      <div class="coverage">
+        <div class="pct" id="livePct">—</div>
+        <div class="cap" id="livePctCap">current coverage of the Sun</div>
+      </div>
     </div>
   </div>
 
